@@ -2,21 +2,44 @@
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
+import { useState, useEffect, useRef } from "react"
 
 const Navbar = () => {
   const pathname = usePathname()
+  const [showNavbar, setShowNavbar] = useState(true)
+  const lastScrollY = useRef(0)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY
+      if (currentScrollY > lastScrollY.current) {
+        setShowNavbar(false) 
+      } else {
+        setShowNavbar(true) 
+      }
+      lastScrollY.current = currentScrollY
+    }
+
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
+
   const links = [
-    { href: "/", label: "Home" },
-    { href: "/blogs", label: "Blogs" },
+    { href: "/", label: "We" },
     { href: "/events", label: "Events" },
     { href: "/projects", label: "Projects" },
+    { href: "/blogs", label: "Blogs" },
     { href: "/timeline", label: "Timeline" },
   ]
 
   return (
-    <nav className="flex items-center px-8 py-4">
+    <nav
+      className={`fixed top-0 left-0 w-full flex items-center px-12 py-3 transition-transform duration-300 z-50 bg-[var(--color-zinc)] ${
+        showNavbar ? "translate-y-0" : "-translate-y-full"
+      }`}
+    >
       <div className="flex items-center">
-        <Image src="/logoybg.png" alt="Celestius Logo" width={170} height={40}/>
+        <Image src="/logoybg.png" alt="Celestius Logo" width={150} height={40}/>
       </div>
 
       <div className="flex-1 flex justify-center">

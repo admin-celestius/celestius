@@ -16,7 +16,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased" style={{ fontFamily: "'MyFont', sans-serif" }}>
+      <head>
+        <link rel="icon" href="/icon.jpg" type="image/jpeg" />
+      </head>
+      <body
+        className="antialiased pt-[4.5rem]"
+        style={{ fontFamily: "'MyFont', sans-serif" }}
+      >
         <Navbar />
         {children}
       </body>
