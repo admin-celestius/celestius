@@ -45,8 +45,8 @@ const Section2 = () => {
 		>
 			<div className="w-1/2 pr-16 flex flex-col justify-center">
 				<h2 className="text-4xl font-bold mb-4">
-					<span style={{ color: "var(--color-primary)" }}>We</span>
-                    <span className="mx-2" style={{ color: "var(--color-white)" }}>are </span>
+					<span style={{ color: "var(--color-white)" }}>What We</span>
+                    <span className="mx-2" style={{ color: "var(--color-primary)" }}>Are </span>
 				</h2>
 				<p className="text-[20px] text-gray-200 leading-relaxed">
 					Club Celestius, a student-run organization that brings together
@@ -57,8 +57,8 @@ const Section2 = () => {
 			</div>
 			<div className="w-1/2 flex flex-col items-center">
 				<h2 className="text-3xl font-bold mb-4">
-					<span style={{ color: "var(--color-primary)" }}>We</span>
-                    <span className="mx-2" style={{ color: "var(--color-white)" }}>focus </span>
+					<span style={{ color: "var(--color-white)" }}>What We</span>
+                    <span className="mx-2" style={{ color: "var(--color-primary)" }}>Focus </span>
 				</h2>
 				<div className="grid grid-cols-2 gap-6 w-full">
 					{focuses.map((focus, idx) => (
