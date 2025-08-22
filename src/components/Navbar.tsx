@@ -34,7 +34,7 @@ const Navbar = () => {
 
   return (
     <nav
-      className={`fixed top-0 left-0 w-full flex items-center px-12 py-3 transition-transform duration-300 z-50 bg-[var(--color-zinc)] ${
+      className={`fixed top-0 left-0 w-full flex items-center px-12 py-3 transition-transform duration-300 z-50 bg-[var(--color-black)] ${
         showNavbar ? "translate-y-0" : "-translate-y-full"
       }`}
     >

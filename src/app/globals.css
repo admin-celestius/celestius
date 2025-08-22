@@ -2,6 +2,7 @@
 
 :root {
   --color-zinc: #18181B;
+  --color-black: black;
   --color-primary: #FAD02C;
   --color-dark: #2C2C2C;
   --color-light: #545454;
@@ -26,7 +27,7 @@
 
 body {
   font-family: 'MyFont', sans-serif;
-  background: var(--color-zinc);
+  background: var(--color-black);
   color: var(--color-white);
 }
 
