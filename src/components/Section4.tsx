@@ -49,24 +49,26 @@ const Section4 = () => {
     const observer = new IntersectionObserver(
       (entries) => {
         const entry = entries[0]
+        // If any part is visible and not locked, snap and lock
         if (
           entry.isIntersecting &&
-          entry.intersectionRatio > 0.5 &&
+          entry.intersectionRatio > 0.1 &&
           !isUnlocking.current
         ) {
-          // Debounce scrollIntoView for smoothness
           if (scrollTimeout) clearTimeout(scrollTimeout)
           scrollTimeout = setTimeout(() => {
             setIsLocked(true)
-            container.scrollIntoView({ behavior: "smooth", block: "nearest" })
-          }, 80)
-        } else if (!entry.isIntersecting) {
+            container.scrollIntoView({ behavior: "smooth", block: "start" })
+          }, 40)
+        }
+        // Only unlock if section is almost completely out of view
+        else if (!entry.isIntersecting || entry.intersectionRatio < 0.05) {
           setIsLocked(false)
           isScrolling.current = false
           isUnlocking.current = false
         }
       },
-      { threshold: [0.5] },
+      { threshold: [0.05, 0.1, 0.9] }
     )
 
     observer.observe(container)
@@ -79,13 +81,6 @@ const Section4 = () => {
 
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
-      console.log("[v0] Wheel event:", {
-        isScrolling: isScrolling.current,
-        isLocked,
-        currentSection,
-        deltaY: e.deltaY,
-      })
-
       if (isScrolling.current) {
         e.preventDefault()
         return
@@ -93,13 +88,19 @@ const Section4 = () => {
 
       if (!isLocked) return
 
+      // Unlock for upward scroll at first slide
       if (e.deltaY < 0 && currentSection === 0) {
-        // Allow scrolling out of section when at first slide
-        console.log("[v0] Unlocking section for upward scroll")
         isUnlocking.current = true
         setIsLocked(false)
         isScrolling.current = false
-        // Don't prevent default - allow natural scroll
+        return
+      }
+
+      // Unlock for downward scroll at last slide
+      if (e.deltaY > 0 && currentSection === sections.length - 1) {
+        isUnlocking.current = true
+        setIsLocked(false)
+        isScrolling.current = false
         return
       }
 
@@ -107,16 +108,13 @@ const Section4 = () => {
       isScrolling.current = true
 
       if (e.deltaY > 0 && currentSection < sections.length - 1) {
-        // Scroll down
         setCurrentSection((prev) => prev + 1)
       } else if (e.deltaY < 0 && currentSection > 0) {
-        // Scroll up within section
         setCurrentSection((prev) => prev - 1)
       }
 
       setTimeout(() => {
         isScrolling.current = false
-        console.log("[v0] Scroll timeout completed")
       }, 600)
     }
 
