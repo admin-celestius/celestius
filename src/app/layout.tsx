@@ -2,6 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import "./globals.css"
 import Navbar from "@/components/Navbar"
+import WeFooter from "@/components/WeFooter"
 
 export const metadata: Metadata = {
   title: "Celestius",
@@ -25,6 +26,7 @@ export default function RootLayout({
       >
         <Navbar />
         {children}
+        <WeFooter />
       </body>
     </html>
   )
