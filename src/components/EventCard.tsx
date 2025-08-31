@@ -34,15 +34,23 @@ function formatDateOnly(d: Date | null): string {
 
 function formatDateTime(d: Date | null): string {
   if (!d) return ""
-  return `${d.toLocaleDateString(undefined, {
+  const datePart = d.toLocaleDateString(undefined, {
     month: "short",
     day: "numeric",
     year: "numeric",
-  })} · ${d.toLocaleTimeString(undefined, {
-    hour: "numeric",
-    minute: "2-digit",
-  })}`
+  })
+  const timePart = d
+    .toLocaleTimeString(undefined, {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    })
+    .replace(/am|pm/, (m) => m.toUpperCase())
+
+  return `${datePart} · ${timePart}`
 }
+
+
 
 function formatDate(d: Date | null): string {
   if (!d) return ""
@@ -92,11 +100,11 @@ export default function EventCard({ event, className }: Props) {
         <div className="grid gap-4 text-sm">
           <div>
             <div className="text-[color:var(--color-light,#A1A1AA)] text-xs mb-1">Opens</div>
-            <div>{regOpen ? formatDateTime(regOpen) : event.registration_open}</div>
+            <div className="font-mono">{regOpen ? formatDateTime(regOpen) : event.registration_open}</div>
           </div>
           <div>
             <div className="text-[color:var(--color-light,#A1A1AA)] text-xs mb-1">Closes</div>
-            <div>{regClose ? formatDateTime(regClose) : event.registration_close}</div>
+            <div className="font-mono">{regClose ? formatDateTime(regClose) : event.registration_close}</div>
           </div>
         </div>
       </aside>
@@ -110,7 +118,7 @@ export default function EventCard({ event, className }: Props) {
           {event.title}
         </h3>
 
-        <p className="text-sm text-[color:var(--color-light,#A1A1AA)] leading-relaxed">
+        <p className="text-sm text-[#c7c7cc] leading-relaxed">
           {event.description}
         </p>
 
@@ -130,11 +138,11 @@ export default function EventCard({ event, className }: Props) {
             </a>
           ) : (
             <span
-              className="inline-flex w-full items-center justify-center rounded-lg border px-3 py-2 text-xs font-medium"
-              style={{
-                borderColor: "var(--color-zinc,#27272A)",
-                color: "var(--color-zinc,#27272A)",
-              }}
+              className="inline-flex w-full items-center justify-center rounded-lg border px-3 py-2 text-xs font-medium bg-[var(--color-primary)] text-black"
+              // style={{
+              //   borderColor: "var(--color-zinc,#27272A)",
+              //   color: "var(--color-zinc,#27272A)",
+              // }}
             >
               {isRegWindowValid ? (
                 now < regOpen! ? <>Opens {formatDate(regOpen)}</> : <>Closed {formatDate(regClose)}</>
