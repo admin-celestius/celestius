@@ -1,8 +1,11 @@
 import BlogList from "../../components/BlogList"
 export default function Blogs() {
   return (
-     <div className="min-h-screen p-6 flex flex-col gap-8">
-          <BlogList />
-        </div>
+    <main className="min-h-screen bg-black text-white p-8">
+      <h1 className="text-3xl font-bold text-[#FAD02C] mb-6">Celestius Blogs</h1>
+      <div className="h-full overflow-y-auto">
+        <BlogList />
+      </div>
+    </main>
   );
 }

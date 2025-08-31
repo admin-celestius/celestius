@@ -16,12 +16,12 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="scroll-smooth">
       <head>
         <link rel="icon" href="/icon.jpg" type="image/jpeg" />
       </head>
       <body
-        className="antialiased pt-[4.5rem]"
+        className="antialiased pt-[4.5rem] bg-black"
         style={{ fontFamily: "'MyFont', sans-serif" }}
       >
         <Navbar />
