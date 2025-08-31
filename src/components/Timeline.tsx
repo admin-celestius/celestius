@@ -95,8 +95,8 @@ function OverlapImages({
             key={i}
             src={src || "/placeholder.svg?height=240&width=320&query=timeline%20image"}
             alt={`${title} image ${i + 1}`}
-            width={100}
-            height={100}
+            width={250}
+            height={250}
             className="absolute left-1/2 top-1/2 rounded-md object-cover"
             style={{
               transform,
