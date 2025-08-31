@@ -45,12 +45,12 @@ const VisitButton: FC<{ href: string; label?: string }> = ({ href, label = "Visi
 const ProjectCard: FC<{ project: Project }> = ({ project }) => {
   return (
     <div
-      className="border rounded-lg p-4 flex flex-col justify-between bg-[#FFFFFF]"
+      className="rounded-lg p-4 flex flex-col justify-between bg-[var(--color-zinc)]"
     >
       <div className="mb-4">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <h3 className="text-xl font-bold" style={{ color: "var(--color-zinc)" }}>
+            <h3 className="text-xl font-bold" style={{ color: "white" }}>
               {project.title}
             </h3>
             <div
@@ -63,7 +63,7 @@ const ProjectCard: FC<{ project: Project }> = ({ project }) => {
         </div>
 
         {project.description && (
-          <p className="opacity-80 mt-2" style={{ color: "var(--color-zinc)" }}>
+          <p className="opacity-80 mt-2" style={{ color: "var(--color-white)" }}>
             {project.description}
           </p>
         )}

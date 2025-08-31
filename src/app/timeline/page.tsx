@@ -1,5 +1,5 @@
+import TimelinePage from "@/components/Timeline";
+
 export default function Timeline() {
-  return (
-    <div> Celestius Timeline Page </div>
-  );
+  return <TimelinePage />;
 }
