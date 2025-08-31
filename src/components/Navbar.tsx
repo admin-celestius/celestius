@@ -51,6 +51,7 @@ const Navbar = () => {
                 className={`text-base font-medium hover:text-[var(--color-primary)] transition-colors ${
                   pathname === link.href ? "underline underline-offset-4" : ""
                 }`}
+                // style={{ fontFamily: 'Doto, sans-serif' }}
               >
                 {link.label}
               </Link>
