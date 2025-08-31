@@ -25,6 +25,22 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: 'LimeLight';
+  src: url('/fonts/limelight.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Doto';
+  src: url('/fonts/doto.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 body {
   font-family: 'MyFont', sans-serif;
   background: var(--color-black);
