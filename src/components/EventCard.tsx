@@ -22,10 +22,19 @@ function parseDate(value: string): Date | null {
   return isNaN(d.getTime()) ? null : d
 }
 
+function formatDateOnly(d: Date | null): string {
+  if (!d) return ""
+  return d.toLocaleDateString(undefined, {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  })
+}
+
 function formatDateTime(d: Date | null): string {
   if (!d) return ""
   return `${d.toLocaleDateString(undefined, {
-    weekday: "short",
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -72,22 +81,22 @@ export default function EventCard({ event, className }: Props) {
       {/* Left Column */}
       <aside
         className="p-4 md:p-6 flex flex-col gap-3"
-        style={{ backgroundColor: "var(--color-zinc, #27272A)" }}
+        style={{ backgroundColor: "black" }}
       >
         <div className="text-xs text-[color:var(--color-light,#A1A1AA)]">Event date</div>
         <div className="text-xl font-mono">
-          {eventDate ? formatDateTime(eventDate) : event.event_date}
+          {eventDate ? formatDateOnly(eventDate) : event.event_date}
         </div>
         <div className="h-px" style={{ backgroundColor: "var(--color-dark,#18181B)" }} />
 
-        <div className="grid gap-2 text-sm">
+        <div className="grid gap-4 text-sm">
           <div>
-            <span className="text-[color:var(--color-light,#A1A1AA)] mr-1">Opens:</span>
-            {regOpen ? formatDateTime(regOpen) : event.registration_open}
+            <div className="text-[color:var(--color-light,#A1A1AA)] text-xs mb-1">Opens</div>
+            <div>{regOpen ? formatDateTime(regOpen) : event.registration_open}</div>
           </div>
           <div>
-            <span className="text-[color:var(--color-light,#A1A1AA)] mr-1">Closes:</span>
-            {regClose ? formatDateTime(regClose) : event.registration_close}
+            <div className="text-[color:var(--color-light,#A1A1AA)] text-xs mb-1">Closes</div>
+            <div>{regClose ? formatDateTime(regClose) : event.registration_close}</div>
           </div>
         </div>
       </aside>
@@ -111,11 +120,11 @@ export default function EventCard({ event, className }: Props) {
               href={event.registration_link!}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex w-full items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition-colors"
-              style={{
-                backgroundColor: "var(--color-zinc, #27272A)",
-                color: "var(--color-white, #ffffff)",
-              }}
+              className="inline-flex w-full items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition-colors bg-[var(--color-primary)] text-black"
+              // style={{
+              //   backgroundColor: "var(--color-zinc, #27272A)",
+              //   color: "var(--color-white, #ffffff)",
+              // }}
             >
               Register
             </a>
