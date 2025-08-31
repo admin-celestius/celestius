@@ -118,9 +118,14 @@ export default function EventCard({ event, className }: Props) {
           {event.title}
         </h3>
 
-        <p className="text-sm text-[#c7c7cc] leading-relaxed">
+        <p
+          className="text-sm text-[#c7c7cc] leading-relaxed line-clamp-10"
+          style={{ minHeight: "14em" }} 
+        >
           {event.description}
         </p>
+
+
 
         <div className="mt-auto max-w-sm">
           {canRegister ? (
