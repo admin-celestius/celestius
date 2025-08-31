@@ -1,7 +1,10 @@
+"use client";
 import { getBlogById } from "@/services/blogsService";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
+import { useEffect, useState } from "react";
+import Image from "next/image";
 
 interface BlogDetailPageProps {
   params: {
@@ -9,8 +12,30 @@ interface BlogDetailPageProps {
   };
 }
 
-export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
-  const { data: blog, error } = await getBlogById(params.id);
+interface Blog {
+  id: string;
+  title: string;
+  content: string;
+  cover_image_url?: string;
+  author_name: string;
+  category: string;
+  summary?: string;
+  related_links?: Array<{ label: string; url: string }>;
+}
+
+export default function BlogDetail({ params }: BlogDetailPageProps) {
+  const [blog, setBlog] = useState<Blog | null>(null);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    const fetchBlog = async () => {
+      const { data, error } = await getBlogById(params.id);
+      setBlog(data);
+      setError(error);
+    };
+    
+    fetchBlog();
+  }, [params.id]);
   if (error || !blog) {
     return <div className="p-10 text-red-600">Blog not found.</div>;
   }
