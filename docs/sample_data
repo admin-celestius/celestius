@@ -1,0 +1,143 @@
+-- ====================================
+-- Extensions (required for UUIDs)
+-- ====================================
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+-- ====================================
+-- Table: projects
+-- ====================================
+CREATE TABLE IF NOT EXISTS public.projects (
+id uuid NOT NULL DEFAULT uuid_generate_v4(),
+title text NOT NULL,
+description text NULL,
+status text NOT NULL,
+created_at timestamptz NOT NULL DEFAULT now(),
+updated_at timestamptz NOT NULL DEFAULT now(),
+is_draft boolean NULL,
+link text NULL,
+CONSTRAINT projects_pkey PRIMARY KEY (id),
+CONSTRAINT projects_status_check CHECK (status = ANY (ARRAY['Completed'::text, 'Open'::text]))
+) TABLESPACE pg_default;
+
+CREATE TRIGGER projects_updated_at
+BEFORE UPDATE ON projects
+FOR EACH ROW
+EXECUTE FUNCTION set_updated_at();
+
+-- ====================================
+-- Table: blogs
+-- ====================================
+CREATE TABLE IF NOT EXISTS public.blogs (
+id serial NOT NULL,
+title varchar(255) NOT NULL,
+author_name varchar(100) NOT NULL,
+author_github varchar(255) NULL,
+author_linkedin varchar(255) NULL,
+category varchar(50) NULL,
+tags text[] NULL,
+cover_image_url text NULL,
+summary text NOT NULL,
+content text NOT NULL,
+related_links jsonb[] NOT NULL,
+created_at timestamp NULL DEFAULT now(),
+updated_at timestamp NULL DEFAULT now(),
+CONSTRAINT blogs_pkey PRIMARY KEY (id)
+) TABLESPACE pg_default;
+-- ====================================
+-- Table: timeline
+-- ====================================
+CREATE TABLE IF NOT EXISTS public.timeline (
+id uuid NOT NULL DEFAULT gen_random_uuid(),
+title text NOT NULL,
+description text NULL,
+date_of_event date NOT NULL,
+images text[] NULL DEFAULT '{}'::text[],
+tags text[] NULL DEFAULT '{}'::text[],
+is_draft boolean NOT NULL DEFAULT false,
+created_at timestamptz NULL DEFAULT now(),
+updated_at timestamptz NULL DEFAULT now(),
+CONSTRAINT timeline_pkey PRIMARY KEY (id)
+) TABLESPACE pg_default;
+
+CREATE TRIGGER update_timeline_updated_at
+BEFORE UPDATE ON timeline
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at_column();
+
+-- ====================================
+-- Table: events
+-- ====================================
+CREATE TABLE IF NOT EXISTS public.events (
+id uuid NOT NULL DEFAULT uuid_generate_v4(),
+title text NOT NULL,
+description text NULL,
+event_date timestamptz NOT NULL,
+registration_open timestamptz NOT NULL,
+registration_close timestamptz NOT NULL,
+registration_link text NULL,
+created_at timestamptz NOT NULL DEFAULT now(),
+updated_at timestamptz NOT NULL DEFAULT now(),
+is_draft boolean NULL,
+CONSTRAINT events_pkey PRIMARY KEY (id)
+) TABLESPACE pg_default;
+
+CREATE TRIGGER events_updated_at
+BEFORE UPDATE ON events
+FOR EACH ROW
+EXECUTE FUNCTION set_updated_at();
+
+-- ====================================
+-- Dummy Data Inserts
+-- ====================================
+-- Projects
+INSERT INTO projects (title, description, status, is_draft, link) VALUES
+('Prep2Pro Platform', 'AI-powered placement prep tool', 'Open', false, '[https://prep2pro.dev](https://prep2pro.dev/)'),
+('EduChain Tracker', 'Blockchain-based certificate verification system', 'Completed', false, 'https://github.com/org/educhain');
+- - Blogs
+INSERT INTO blogs (title, author_name, author_github, category, tags, cover_image_url, summary, content, related_links) VALUES
+(
+'Getting Started with AI Agents',
+'Arun Kumar',
+'https://github.com/arunkumar',
+'AI',
+ARRAY['AI','Agents','Learning'],
+'https://example.com/cover.png',
+'A short intro on building AI agents.',
+'Full blog content goes here...',
+ARRAY['{"title":"GitHub","url":"[https://github.com](https://github.com/)"}'::jsonb]
+),
+(
+'EduChain: Secure Certificates',
+'Team EduChain',
+NULL,
+'Blockchain',
+ARRAY['Blockchain','Education','Security'],
+NULL,
+'Overview of blockchain-based certificate verification.',
+'Detailed content here...',
+ARRAY['{"title":"EduChain Docs","url":"[https://educhain.dev](https://educhain.dev/)"}'::jsonb]
+);
+- - Timeline
+INSERT INTO timeline (title, description, date_of_event, tags) VALUES
+('Prep2Pro v1 Launch', 'Initial release of Prep2Pro', '2024-08-01', ARRAY['release','AI']),
+('EduChain Pilot Test', 'University pilot of blockchain system', '2024-12-15', ARRAY['blockchain','education']);
+- - Events
+INSERT INTO events (title, description, event_date, registration_open, registration_close, registration_link, is_draft) VALUES
+(
+'AI Hackathon 2025',
+'48-hour hackathon focused on building AI-powered tools.',
+'2025-11-10 09:00:00+05:30',
+'2025-10-15 00:00:00+05:30',
+'2025-11-05 23:59:59+05:30',
+'https://example.com/ai-hackathon',
+false
+),
+(
+'EduChain Conference',
+'Conference on blockchain in education.',
+'2025-12-01 10:00:00+05:30',
+'2025-11-01 00:00:00+05:30',
+'2025-11-25 23:59:59+05:30',
+'https://example.com/educhain-conf',
+false
+);
