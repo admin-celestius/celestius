@@ -65,20 +65,20 @@ function OverlapImages({
   isMobile?: boolean
 }) {
   const n = Math.min(images.length, 5)
-  if (n === 0) return null
 
-  // For mobile click cycling z-index logic
+  // React Hooks must be called unconditionally,
+  // so call them at top level, before any early returns
   const [mobileFrontIndex, setMobileFrontIndex] = useState(0)
 
-  // On mobile, cycle images on click to bring next image to front
-  const onMobileClick = () => {
-    setMobileFrontIndex((prev) => (prev + 1) % n)
-  }
-
-  // On desktop hover reset front index
   useEffect(() => {
     if (!isMobile) setMobileFrontIndex(0)
   }, [isMobile])
+
+  if (n === 0) return null
+
+  const onMobileClick = () => {
+    setMobileFrontIndex((prev) => (prev + 1) % n)
+  }
 
   return (
     <div
@@ -96,85 +96,78 @@ function OverlapImages({
       }}
     >
       {images.slice(0, n).map((src, i) => {
-  // Mobile-specific positioning with reduced spread
-  const mobileX = (i - 2) * 40
-  const mobileY = 20
-  const mobileRot = (i - 2) * 5
+        const mobileX = (i - 2) * 40
+        const mobileY = 20
+        const mobileRot = (i - 2) * 5
 
-  // Desktop positioning (original)
-  const isLeft = i % 2 === 0
-  const baseX = (isLeft ? -1 : 1) * (22 + i * 18)
-  const baseY = -8 * i
-  const baseRot = (isLeft ? -6 : 6) + (isLeft ? -1 : 1) * i
-  const baseZ = 10 + i
+        const isLeft = i % 2 === 0
+        const baseX = (isLeft ? -1 : 1) * (22 + i * 18)
+        const baseY = -8 * i
+        const baseRot = (isLeft ? -6 : 6) + (isLeft ? -1 : 1) * i
+        const baseZ = 10 + i
 
-  // Fan-out effect for expanded view
-  const spread = isMobile ? 80 : 140
-  const start = -spread / 2
-  const step = n === 1 ? 0 : spread / (n - 1)
-  const angleDeg = start + step * i
-  const angleRad = (angleDeg * Math.PI) / 180
-  const rx = isMobile ? 100 : 180
-  const ry = isMobile ? 60 : 90
-  const fanX = Math.sin(angleRad) * rx
-  const fanY = -Math.cos(angleRad) * ry + (isMobile ? 40 : 60)
-  const sign = isLeft ? -1 : 1
-  const fanRot = sign * (isMobile ? 4 : 8) + angleDeg * 0.05
+        const spread = isMobile ? 80 : 140
+        const start = -spread / 2
+        const step = n === 1 ? 0 : spread / (n - 1)
+        const angleDeg = start + step * i
+        const angleRad = (angleDeg * Math.PI) / 180
+        const rx = isMobile ? 100 : 180
+        const ry = isMobile ? 60 : 90
+        const fanX = Math.sin(angleRad) * rx
+        const fanY = -Math.cos(angleRad) * ry + (isMobile ? 40 : 60)
+        const sign = isLeft ? -1 : 1
+        const fanRot = sign * (isMobile ? 4 : 8) + angleDeg * 0.05
 
-  const transform = expanded
-    ? `translate(calc(-50% + ${fanX}px), calc(-50% + ${fanY}px)) rotate(${fanRot}deg)`
-    : isMobile
-    ? `translate(calc(-50% + ${mobileX}px), calc(-50% + ${mobileY}px)) rotate(${mobileRot}deg)`
-    : `translate(calc(-50% + ${baseX}px), calc(-50% + ${baseY}px)) rotate(${baseRot}deg)`
+        const transform = expanded
+          ? `translate(calc(-50% + ${fanX}px), calc(-50% + ${fanY}px)) rotate(${fanRot}deg)`
+          : isMobile
+          ? `translate(calc(-50% + ${mobileX}px), calc(-50% + ${mobileY}px)) rotate(${mobileRot}deg)`
+          : `translate(calc(-50% + ${baseX}px), calc(-50% + ${baseY}px)) rotate(${baseRot}deg)`
 
-  let zIndex = baseZ
-  if (isMobile) {
-    const offset = (i - mobileFrontIndex + n) % n
-    zIndex = 100 + (n - offset)
-  }
+        let zIndex = baseZ
+        if (isMobile) {
+          const offset = (i - mobileFrontIndex + n) % n
+          zIndex = 100 + (n - offset)
+        }
 
-  // Determine if this image is currently front on mobile
-  const isFront = isMobile && mobileFrontIndex === i
+        const isFront = isMobile && mobileFrontIndex === i
 
-  // Create the style object here
-  const style :React.CSSProperties= {
-    transform,
-    zIndex,
-    cursor: isMobile ? 'pointer' : 'default',
-    boxShadow: isFront ? `0 10px 28px rgba(0,0,0,0.38)` : `0 6px 14px rgba(0,0,0,0.25)`,
-    transition: "transform 320ms ease, box-shadow 320ms ease, filter 320ms ease, scale 320ms ease",
-    border: "1px solid var(--color-dark)",
-    backgroundColor: "var(--color-dark)",
-    position: 'absolute',
-    scale: isFront ? 1.05 : 1,
-    filter: isFront ? 'brightness(1.1)' : 'brightness(1)',
-  }
+        const style: React.CSSProperties = {
+          transform,
+          zIndex,
+          cursor: isMobile ? "pointer" : "default",
+          boxShadow: isFront ? `0 10px 28px rgba(0,0,0,0.38)` : `0 6px 14px rgba(0,0,0,0.25)`,
+          transition: "transform 320ms ease, box-shadow 320ms ease, filter 320ms ease, scale 320ms ease",
+          border: "1px solid var(--color-dark)",
+          backgroundColor: "var(--color-dark)",
+          position: "absolute",
+          scale: isFront ? 1.05 : 1,
+          filter: isFront ? "brightness(1.1)" : "brightness(1)",
+        }
 
-  return (
-    <Image
-      key={i}
-      src={src || "/placeholder.svg?height=240&width=320&query=timeline%20image"}
-      alt={`${title} image ${i + 1}`}
-      width={250}
-      height={250}
-      className="absolute left-1/2 top-1/2 rounded-md object-cover"
-      style={style}
-      onClick={() => setMobileFrontIndex(i)}
-    />
-  )
-})}
-
+        return (
+          <Image
+            key={i}
+            src={src || "/placeholder.svg?height=240&width=320&query=timeline%20image"}
+            alt={`${title} image ${i + 1}`}
+            width={250}
+            height={250}
+            className="absolute left-1/2 top-1/2 rounded-md object-cover"
+            style={style}
+            onClick={() => setMobileFrontIndex(i)}
+          />
+        )
+      })}
     </div>
   )
 }
 
-function TimelineCard({ item, isFirst }: { item: TimelineItem; isFirst: boolean }) {
+function TimelineCard({ item }: { item: TimelineItem }) {
   const dateLabel = formatDate(item.date_of_event)
   const hasImages = (item.images?.length || 0) > 0
   const [expanded, setExpanded] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
 
-  // Detect mobile devices
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768)
@@ -308,8 +301,8 @@ export default function TimelinePage() {
           <p className="text-red-500">{error}</p>
         ) : (
           <ol className="relative flex flex-col gap-6">
-            {items.map((item, idx) => (
-              <TimelineCard key={item.id} item={item} isFirst={idx === 0} />
+            {items.map((item) => (
+              <TimelineCard key={item.id} item={item} />
             ))}
           </ol>
         )}
