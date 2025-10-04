@@ -57,38 +57,93 @@ function OverlapImages({
   title,
   images = [],
   expanded,
+  isMobile = false,
 }: {
   title: string
   images?: string[]
   expanded: boolean
+  isMobile?: boolean
 }) {
   const n = Math.min(images.length, 5)
+
+  // React Hooks must be called unconditionally,
+  // so call them at top level, before any early returns
+  const [mobileFrontIndex, setMobileFrontIndex] = useState(0)
+
+  useEffect(() => {
+    if (!isMobile) setMobileFrontIndex(0)
+  }, [isMobile])
+
   if (n === 0) return null
 
+  const onMobileClick = () => {
+    setMobileFrontIndex((prev) => (prev + 1) % n)
+  }
+
   return (
-    <div className="relative mt-3 h-64 w-full">
+    <div
+      className="relative mt-3 h-64 w-full select-none"
+      style={{ touchAction: "manipulation" }}
+      onClick={isMobile ? onMobileClick : undefined}
+      aria-label={`Image gallery for ${title}, ${n} images`}
+      role={isMobile ? "button" : undefined}
+      tabIndex={isMobile ? 0 : undefined}
+      onKeyDown={(e) => {
+        if (isMobile && (e.key === "Enter" || e.key === " ")) {
+          e.preventDefault()
+          onMobileClick()
+        }
+      }}
+    >
       {images.slice(0, n).map((src, i) => {
+        const mobileX = (i - 2) * 40
+        const mobileY = 20
+        const mobileRot = (i - 2) * 5
+
         const isLeft = i % 2 === 0
         const baseX = (isLeft ? -1 : 1) * (22 + i * 18)
         const baseY = -8 * i
         const baseRot = (isLeft ? -6 : 6) + (isLeft ? -1 : 1) * i
         const baseZ = 10 + i
 
-        const spread = 140
+        const spread = isMobile ? 80 : 140
         const start = -spread / 2
         const step = n === 1 ? 0 : spread / (n - 1)
         const angleDeg = start + step * i
         const angleRad = (angleDeg * Math.PI) / 180
-        const rx = 180
-        const ry = 90
+        const rx = isMobile ? 100 : 180
+        const ry = isMobile ? 60 : 90
         const fanX = Math.sin(angleRad) * rx
-        const fanY = -Math.cos(angleRad) * ry + 60
+        const fanY = -Math.cos(angleRad) * ry + (isMobile ? 40 : 60)
         const sign = isLeft ? -1 : 1
-        const fanRot = sign * 8 + angleDeg * 0.05
+        const fanRot = sign * (isMobile ? 4 : 8) + angleDeg * 0.05
 
         const transform = expanded
           ? `translate(calc(-50% + ${fanX}px), calc(-50% + ${fanY}px)) rotate(${fanRot}deg)`
+          : isMobile
+          ? `translate(calc(-50% + ${mobileX}px), calc(-50% + ${mobileY}px)) rotate(${mobileRot}deg)`
           : `translate(calc(-50% + ${baseX}px), calc(-50% + ${baseY}px)) rotate(${baseRot}deg)`
+
+        let zIndex = baseZ
+        if (isMobile) {
+          const offset = (i - mobileFrontIndex + n) % n
+          zIndex = 100 + (n - offset)
+        }
+
+        const isFront = isMobile && mobileFrontIndex === i
+
+        const style: React.CSSProperties = {
+          transform,
+          zIndex,
+          cursor: isMobile ? "pointer" : "default",
+          boxShadow: isFront ? `0 10px 28px rgba(0,0,0,0.38)` : `0 6px 14px rgba(0,0,0,0.25)`,
+          transition: "transform 320ms ease, box-shadow 320ms ease, filter 320ms ease, scale 320ms ease",
+          border: "1px solid var(--color-dark)",
+          backgroundColor: "var(--color-dark)",
+          position: "absolute",
+          scale: isFront ? 1.05 : 1,
+          filter: isFront ? "brightness(1.1)" : "brightness(1)",
+        }
 
         return (
           <Image
@@ -98,16 +153,8 @@ function OverlapImages({
             width={250}
             height={250}
             className="absolute left-1/2 top-1/2 rounded-md object-cover"
-            style={{
-              transform,
-              zIndex: baseZ,
-              boxShadow: expanded
-                ? `0 10px 28px rgba(0,0,0,0.38)`
-                : `0 6px 14px rgba(0,0,0,0.25)`,
-              transition: "transform 320ms ease, box-shadow 320ms ease",
-              border: "1px solid var(--color-dark)",
-              backgroundColor: "var(--color-dark)",
-            }}
+            style={style}
+            onClick={() => setMobileFrontIndex(i)}
           />
         )
       })}
@@ -115,10 +162,20 @@ function OverlapImages({
   )
 }
 
-function TimelineCard({ item }: { item: TimelineItem; isFirst: boolean }) {
+function TimelineCard({ item }: { item: TimelineItem }) {
   const dateLabel = formatDate(item.date_of_event)
   const hasImages = (item.images?.length || 0) > 0
   const [expanded, setExpanded] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    checkMobile()
+    window.addEventListener("resize", checkMobile)
+    return () => window.removeEventListener("resize", checkMobile)
+  }, [])
 
   const onEnter = useCallback(() => setExpanded(true), [])
   const onLeave = useCallback(() => setExpanded(false), [])
@@ -151,7 +208,9 @@ function TimelineCard({ item }: { item: TimelineItem; isFirst: boolean }) {
             <DateBadge date={dateLabel} />
           </div>
 
-          {hasImages ? <OverlapImages title={item.title} images={item.images} expanded={expanded} /> : null}
+          {hasImages ? (
+            <OverlapImages title={item.title} images={item.images} expanded={expanded} isMobile={isMobile} />
+          ) : null}
 
           {item.tags && item.tags.length > 0 ? (
             <div className="mt-3 flex flex-wrap gap-2">
@@ -207,7 +266,14 @@ export default function TimelinePage() {
   }, [])
 
   return (
-    <main className="min-h-screen w-full font-sans" style={{ backgroundColor: "var(--color-black)" }}>
+    <main
+      className="min-h-screen w-full font-sans relative"
+      style={{
+        backgroundColor: "var(--color-black)",
+        overflowX: "hidden",
+        width: "100vw",
+      }}
+    >
       <header className="mx-auto w-full max-w-3xl px-4 py-10 md:py-12">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl md:text-3xl font-semibold text-balance" style={{ color: "var(--color-white)" }}>
@@ -235,13 +301,12 @@ export default function TimelinePage() {
           <p className="text-red-500">{error}</p>
         ) : (
           <ol className="relative flex flex-col gap-6">
-            {items.map((item, idx) => (
-              <TimelineCard key={item.id} item={item} isFirst={idx === 0} />
+            {items.map((item) => (
+              <TimelineCard key={item.id} item={item} />
             ))}
           </ol>
         )}
       </section>
-
     </main>
   )
 }
