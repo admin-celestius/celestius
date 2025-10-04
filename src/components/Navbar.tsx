@@ -21,7 +21,6 @@ const Navbar = () => {
       }
       lastScrollY.current = currentScrollY
     }
-
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
@@ -46,7 +45,7 @@ const Navbar = () => {
       </div>
 
       {/* Desktop Links */}
-      <div className="hidden sm:flex flex-1 justify-center">
+      <div className="navLink">
         <ul className="flex gap-12">
           {links.map((link) => (
             <li key={link.href}>

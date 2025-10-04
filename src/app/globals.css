@@ -50,3 +50,17 @@ body {
 html {
   overflow-y: scroll;
 }
+@media (min-width:690px){
+        .navLink {
+            display:flex;
+            gap:10px;
+            justify-content:center;
+            align-items:center;
+            flex:1;
+        }
+      }
+@media (max-width:1090px){
+        .navLink {
+            display:none;
+        }
+      }
