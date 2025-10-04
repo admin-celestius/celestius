@@ -96,73 +96,74 @@ function OverlapImages({
       }}
     >
       {images.slice(0, n).map((src, i) => {
-        // Mobile-specific positioning with reduced spread
-        const mobileX = (i - 2) * 40
-        const mobileY = 20
-        const mobileRot = (i - 2) * 5
+  // Mobile-specific positioning with reduced spread
+  const mobileX = (i - 2) * 40
+  const mobileY = 20
+  const mobileRot = (i - 2) * 5
 
-        // Desktop positioning (original)
-        const isLeft = i % 2 === 0
-        const baseX = (isLeft ? -1 : 1) * (22 + i * 18)
-        const baseY = -8 * i
-        const baseRot = (isLeft ? -6 : 6) + (isLeft ? -1 : 1) * i
-        const baseZ = 10 + i
+  // Desktop positioning (original)
+  const isLeft = i % 2 === 0
+  const baseX = (isLeft ? -1 : 1) * (22 + i * 18)
+  const baseY = -8 * i
+  const baseRot = (isLeft ? -6 : 6) + (isLeft ? -1 : 1) * i
+  const baseZ = 10 + i
 
-        // Fan-out effect for expanded view
-        const spread = isMobile ? 80 : 140
-        const start = -spread / 2
-        const step = n === 1 ? 0 : spread / (n - 1)
-        const angleDeg = start + step * i
-        const angleRad = (angleDeg * Math.PI) / 180
-        const rx = isMobile ? 100 : 180
-        const ry = isMobile ? 60 : 90
-        const fanX = Math.sin(angleRad) * rx
-        const fanY = -Math.cos(angleRad) * ry + (isMobile ? 40 : 60)
-        const sign = isLeft ? -1 : 1
-        const fanRot = sign * (isMobile ? 4 : 8) + angleDeg * 0.05
+  // Fan-out effect for expanded view
+  const spread = isMobile ? 80 : 140
+  const start = -spread / 2
+  const step = n === 1 ? 0 : spread / (n - 1)
+  const angleDeg = start + step * i
+  const angleRad = (angleDeg * Math.PI) / 180
+  const rx = isMobile ? 100 : 180
+  const ry = isMobile ? 60 : 90
+  const fanX = Math.sin(angleRad) * rx
+  const fanY = -Math.cos(angleRad) * ry + (isMobile ? 40 : 60)
+  const sign = isLeft ? -1 : 1
+  const fanRot = sign * (isMobile ? 4 : 8) + angleDeg * 0.05
 
-        // Determine transform based on expanded and device type
-        const transform = expanded
-          ? `translate(calc(-50% + ${fanX}px), calc(-50% + ${fanY}px)) rotate(${fanRot}deg)`
-          : isMobile
-          ? `translate(calc(-50% + ${mobileX}px), calc(-50% + ${mobileY}px)) rotate(${mobileRot}deg)`
-          : `translate(calc(-50% + ${baseX}px), calc(-50% + ${baseY}px)) rotate(${baseRot}deg)`
+  const transform = expanded
+    ? `translate(calc(-50% + ${fanX}px), calc(-50% + ${fanY}px)) rotate(${fanRot}deg)`
+    : isMobile
+    ? `translate(calc(-50% + ${mobileX}px), calc(-50% + ${mobileY}px)) rotate(${mobileRot}deg)`
+    : `translate(calc(-50% + ${baseX}px), calc(-50% + ${baseY}px)) rotate(${baseRot}deg)`
 
-        // Mobile zIndex cycling logic: image at mobileFrontIndex is always front (highest z-index = n + 10)
-        // Other images have decreasing zIndex so that clicked image is on top, making a circular effect
-        let zIndex = baseZ
-        if (isMobile) {
-          // Calculate offset for cycling zIndex
-          // The image matching mobileFrontIndex has highest zIndex n+10
-          // Others get zIndex based on distance behind it
-          const offset = (i - mobileFrontIndex + n) % n
-          zIndex = 100 + (n - offset)
-        }
+  let zIndex = baseZ
+  if (isMobile) {
+    const offset = (i - mobileFrontIndex + n) % n
+    zIndex = 100 + (n - offset)
+  }
 
-        return (
-          <Image
-            key={i}
-            src={src || "/placeholder.svg?height=240&width=320&query=timeline%20image"}
-            alt={`${title} image ${i + 1}`}
-            width={250}
-            height={250}
-            className="absolute left-1/2 top-1/2 rounded-md object-cover"
-            style={{
-              transform,
-              zIndex,
-              boxShadow: expanded
-                ? `0 10px 28px rgba(0,0,0,0.38)`
-                : `0 6px 14px rgba(0,0,0,0.25)`,
-              transition: "transform 320ms ease, box-shadow 320ms ease, z-index 320ms ease",
-              border: "1px solid var(--color-dark)",
-              backgroundColor: "var(--color-dark)",
-              cursor: isMobile ? "pointer" : "default",
-            }}
-            draggable={false}
-            loading="lazy"
-          />
-        )
-      })}
+  // Determine if this image is currently front on mobile
+  const isFront = isMobile && mobileFrontIndex === i
+
+  // Create the style object here
+  const style :React.CSSProperties= {
+    transform,
+    zIndex,
+    cursor: isMobile ? 'pointer' : 'default',
+    boxShadow: isFront ? `0 10px 28px rgba(0,0,0,0.38)` : `0 6px 14px rgba(0,0,0,0.25)`,
+    transition: "transform 320ms ease, box-shadow 320ms ease, filter 320ms ease, scale 320ms ease",
+    border: "1px solid var(--color-dark)",
+    backgroundColor: "var(--color-dark)",
+    position: 'absolute',
+    scale: isFront ? 1.05 : 1,
+    filter: isFront ? 'brightness(1.1)' : 'brightness(1)',
+  }
+
+  return (
+    <Image
+      key={i}
+      src={src || "/placeholder.svg?height=240&width=320&query=timeline%20image"}
+      alt={`${title} image ${i + 1}`}
+      width={250}
+      height={250}
+      className="absolute left-1/2 top-1/2 rounded-md object-cover"
+      style={style}
+      onClick={() => setMobileFrontIndex(i)}
+    />
+  )
+})}
+
     </div>
   )
 }
